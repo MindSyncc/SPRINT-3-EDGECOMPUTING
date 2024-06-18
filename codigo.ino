@@ -21,12 +21,21 @@ int ultrapassagem2 = 0;
 LiquidCrystal_I2C lcd1(0x27, 16, 2);
 LiquidCrystal_I2C lcd2(0x20, 16, 2);
 
-// Vetor para armazenar as últimas 2 leituras de distância
-long distancias[2] = {0, 0};
+
+// Número máximo de leituras a armazenar
+const int maxLeituras = 10;
+
+// índice controlador dos arrays
+int index = 0;
+
+// Arrays para armazenar leituras de velocidade e distância
+int leituras_vel1[maxLeituras];
+int leituras_vel2[maxLeituras];
+long distancias[maxLeituras];
 
 // Arrays para armazenar as médias móveis
-int mediaMovelVelCarro1[10] = {0};
-int mediaMovelVelCarro2[10] = {0};
+int mediaMovelVelCarro1[10]; 
+int mediaMovelVelCarro2[10]; 
 int contagemLeituras = 0; // CONTADOR DE LEITURAS
 
 unsigned long previousMillis = 0; // Variável para armazenar o tempo de execução anterior
@@ -103,9 +112,15 @@ void loop() {
   // Cálculo da distância em centímetros com maior precisão
   distance = duration / 58.31;
 
-  // Atualiza o vetor de distâncias
-  distancias[1] = distancias[0]; // Move a última leitura para a posição anterior
-  distancias[0] = distance; // Armazena a nova leitura na posição atual
+  // Armazenamento das velocidades e distância nos arrays
+  if (index < maxLeituras) {
+    leituras_vel1[index] = speed1;
+    leituras_vel2[index] = speed2;
+    distancias[index] = distance;
+    index++;
+  } else {
+    index = 0; // Reset do índice quando chega ao máximo
+  }
 
   // Adiciona as leituras de velocidade à média móvel
   for (int i = 9; i > 0; i--) {
@@ -131,57 +146,52 @@ void loop() {
   }
 
   // Verifica se a distância está diminuindo e é menor que 4 metros
-  if (distancias[0] < distancias[1] && distancias[0] < 3) {
-    // Se a velocidade do carro 1 for maior e a distância estiver diminuindo
-    if (speed1 > speed2) {
+  distance = 0;
+  // variável de tratamento do código.
+  int ultrapassagem = 0;
+
+  // VERIFICAÇÃO DE ULTRAPASSAGEM COM BASE NA MÉDIA MÓVEL
+  if (speed1 >= 1.3 * speed2 || speed2 >= 1.3 * speed1 && distance < 400) {
+    ultrapassagem = 1;
+  }
+  
+  // CONFIRMAÇÃO DA CHANCE DE ULTRAPASSAGEM (ocorre somente se passaram-se 1s desde a última)
+  if (currentMillis - previousMillis >= interval && ultrapassagem == 1) {
+    // Salva o tempo atual na variável previousMillis
+    previousMillis = currentMillis;
+    Serial.println("Chance de ultrapassagem detectada!"); //exemplo
+    if (distance  == 0 && speed1 >= 1.3 * speed2) {
       ultrapassagem1++;
-      lcdClear();
-      lcd1.setCursor(0, 0);
-      lcd1.print("Corredor 1 ");
-      lcd1.print("ultrapassou!");
-      lcd2.setCursor(0, 0);
-      lcd2.print("Corredor 1 ");
-      lcd2.print("ultrapassou!");
-      Serial.println("O corredor 1 fez uma ultrapassagem!");
-      delay(1500);
-      lcdClear();
-      lcd();
+      Serial.println("O corredor (1) fez uma ultrapassagem!");
+      Serial.print("Ultrapassagens do carro (1) : ");
+      Serial.print(ultrapassagem1);
 
-      if (distancias[1] && distancias[0] <= 0) {
-        lcd1.print("Corredor 1 ");
-        lcd1.print("ultrapassou!");
-        lcd2.setCursor(0, 0);
-        lcd2.print("Corredor 1 ");
-        lcd2.print("ultrapassou!");
-        Serial.println("O corredor 1 fez uma ultrapassagem!");
-      }
-
-    } else if (speed2 > speed1) {
+    }
+    if (distance  == 0 && speed2 >= 1.3 * speed1) {
       ultrapassagem2++;
-      lcdClear();
-      lcd1.setCursor(0, 0);
-      lcd1.print("Corredor 2 ");
-      lcd1.print("ultrapassou!");
-      lcd2.setCursor(0, 0);
-      lcd2.print("Corredor 2 ");
-      lcd2.print("ultrapassou!");
-      Serial.println("O corredor 2 fez uma ultrapassagem!");
-      delay(1500);
-      lcdClear();
-      lcd();
+      Serial.println("O corredor (2) fez uma ultrapassagem!");
+      Serial.print("Ultrapassagens do carro (2) : ");
+      Serial.print(ultrapassagem2);
+    }
+  }
+  
 
-      if (distancias[1] && distancias[0] <= 0) {
-        lcd2.setCursor(0, 0);
-        lcd2.print("Corredor 2 ");
-        lcd2.print("ultrapassou!");
-        Serial.println("O corredor 2 fez uma ultrapassagem!");
-        delay(1500);
-      }
+  // Pequeno atraso para evitar saturação do loop
+
+    // Imprime os dados no Serial Monitor
+  if (index == 9) {
+    for (int i = 0; i < maxLeituras; i++) {
+
+      Serial.print("v1 = ");
+      Serial.println(speed1);
+      Serial.print("v2 = ");
+      Serial.println(speed2);
+      Serial.print("dist = ");
+      Serial.println(distance);
     }
   }
 
-  // Pequeno atraso para evitar saturação do loop
-  delay(4500);
+  delay(100);
   lcdClear();
 }
 
@@ -252,7 +262,7 @@ void Introdisplay() {
     lcd1.print("Sync");
     delay(100);
     lcd1.clear();
-    
+
     lcd2.setCursor(15 - positionCounter, 1);
     lcd2.print("Sync");
     delay(100);
