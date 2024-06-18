@@ -38,7 +38,7 @@ O código embarcado no Arduino é responsável por ler os valores dos sensores d
 ## Por trás do código:
 O sistema como já dito consegue verificar se um carro ultrapassou o outro, utilizando-se do sensor de som para calcular as distâncias entre um carro e outro e das velocidades para armaze-na-las e assim estabelecer a condição de ultrapassagem, a quantidade de ultrapassagens é armazenada para posteriormente poder implementar um sistema de estatísticas sobre as ultrapassagens, além de servir para poder alimentar o público com dados interessantes sobre seus corredores favoritos. 
 
-Integrantes do Grupo:
+Integrantes do Grupo: <br>
 Fernando Carlos Colque Huaranca rm 558095 <br>
 Heloísa Fleury Jardim rm 556378 <br>
 Juan Fuentes Rufino rm 557673 <br>
