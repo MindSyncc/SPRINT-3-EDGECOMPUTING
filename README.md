@@ -1,5 +1,5 @@
 # Sistema de Monitoramento de Velocidade e Ultrapassagem de Veículos
-Este projeto consiste em um sistema de monitoramento de velocidade e ultrapassagem de veículos, utilizando sensores ultrassônicos e displays LCD. O sistema é capaz de detectar a velocidade de dois carros e monitorar quando um veículo ultrapassa o outro. Além disso, emite um alerta sonoro quando uma ultrapassagem é detectada.
+Este projeto consiste em um sistema de monitoramento de velocidade e ultrapassagem de veículos, utilizando sensores ultrassônicos e displays LCD. O sistema é capaz de detectar a velocidade de dois carros e monitorar quando um veículo ultrapassa o outro. Informações sobre os veículos são mostradas tanto no serial monitor quanto nos LCDs, que por sinal, são 2, de modo a simular com que cada LCD pertença a um carro em uma situação onde há 2 carros em cena.
 
 Componentes Utilizados
 2 Displays LCD 16x2 com I2C
@@ -34,3 +34,6 @@ O código embarcado no Arduino é responsável por ler os valores dos sensores d
 - Determina se ocorreu uma ultrapassagem com base nas velocidades e nas leituras de distância.
 - Atualiza os displays com as informações de velocidade e contagem de ultrapassagens.
 - Aguarda 4.5 segundos antes da próxima leitura para evitar saturação do loop.
+
+## Por trás do código:
+O sistema como já dito consegue verificar se um carro ultrapassou o outro, 
